@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadUp Prototype - Full Feature</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --p: #1B4332; --pd: #081C15; --acc: #F4A261; --bg: #F8F9FA; --mut: #64748B; --text: #1E293B; --surface: #FFFFFF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    button, input { font-family: inherit; }
+    ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #F1F5F9; } ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+    @keyframes fadeSlide { from { transform: translateX(80px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .nav-link { background: none; border: none; padding: 8px 16px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+    .bento-hover { transition: transform 0.2s, box-shadow 0.2s; }
+    .bento-hover:hover { transform: translateY(-6px); box-shadow: 0 12px 36px rgba(0,0,0,0.05); }
+    .btn-primary { background: var(--surface); color: var(--p); border: none; padding: 14px 28px; border-radius: 14px; font-weight: 800; cursor: pointer; font-size: 15px; transition: transform 0.15s; }
+    .btn-primary:hover { transform: scale(1.02); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const P = '#1B4332', PD = '#081C15', ACC = '#F4A261', BG = '#F8F9FA', MUT = '#64748B';
+
+    // Data Mockup
+    const REWARDS = [
+      { id:1, name:"Kaos ReadUp", pts:2500, stock:50, cat:"Merchandise", em:"👕" },
+      { id:2, name:"Tumbler Premium", pts:2000, stock:30, cat:"Merchandise", em:"🥤" },
+      { id:3, name:"Voucher Belanja Rp 50.000", pts:5000, stock:100, cat:"Voucher", em:"🎫", val:"50.000", vc:'#10B981' },
+      { id:4, name:"Voucher GoPay Rp 30.000", pts:3500, stock:150, cat:"E-Wallet", em:"💳", val:"30.000", vc:'#0EA5E9' },
+    ];
+    
+    const BASE_HISTORY = [
+      { act:"Bonus baca 3 artikel berturut-turut", pts:10, date:"Hari ini, 09:08" },
+      { act:"Referral teman: Dina bergabung", pts:20, date:"Kemarin, 15:30" },
+      { act:"Membaca artikel 'Batik Nusantara'", pts:5, date:"3 hari lalu" },
+    ];
+
+    // Komponen Notifikasi
+    function Notif({ n }) {
+      return (
+        <div style={{ position:'fixed', top:90, right:24, zIndex:9999, background: n.type==='error'?'#EF4444':P, color:'#fff', padding:'16px 24px', borderRadius:16, boxShadow:'0 10px 30px rgba(0,0,0,0.15)', display:'flex', alignItems:'center', gap:12, maxWidth:360, fontSize:15, fontWeight:600, animation:'fadeSlide .3s' }}>
+          <span style={{ fontSize:20 }}>{n.type==='error'?'⚠️':'✨'}</span>{n.msg}
+        </div>
+      );
+    }
+
+    // Komponen Navigasi
+    function NavBar({ pg, go, pts }) {
+      const links = [{id:'home',lbl:'Beranda'}, {id:'articles',lbl:'Artikel'}, {id:'programs',lbl:'Program'}, {id:'rewards',lbl:'Reward Store'}];
+      return (
+        <nav style={{ background:'rgba(255,255,255,0.85)', backdropFilter:'blur(16px)', position:'sticky', top:0, zIndex:200, height:80, display:'flex', alignItems:'center', padding:'0 48px', gap:12, borderBottom:'1px solid rgba(0,0,0,.05)' }}>
+          <div onClick={()=>go('home')} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', color:P, fontWeight:900, fontSize:22, marginRight:32 }}>
+            <div style={{background:P, color:'#fff', width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center'}}>📖</div> ReadUp
+          </div>
+          <div style={{ display:'flex', flex:1, gap:8 }}>
+            {links.map(l=><button key={l.id} className="nav-link" onClick={()=>go(l.id)} style={{ color: pg===l.id?P:MUT, background: pg===l.id?'rgba(27,67,50,0.08)':'transparent', fontWeight: pg===l.id?700:500 }}>{l.lbl}</button>)}
+          </div>
+          <div onClick={()=>go('dashboard')} style={{ display:'flex', alignItems:'center', gap:12, background:'#fff', borderRadius:16, padding:'8px 16px 8px 8px', cursor:'pointer', border:'1px solid #E2E8F0', boxShadow:'0 2px 8px rgba(0,0,0,0.02)' }}>
+            <div style={{ width:36, height:36, borderRadius:12, background:ACC, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>👤</div>
+            <div>
+              <div style={{ color:P, fontSize:13, fontWeight:800 }}>Hai, Thoriq</div>
+              <div style={{ color:ACC, fontSize:12, fontWeight:800 }}>🪙 {pts.toLocaleString('id')} Poin</div>
+            </div>
+          </div>
+        </nav>
+      );
+    }
+
+    // Komponen Halaman Home (Sederhana untuk demo)
+    function HomePage({ go, pts }) {
+      return (
+        <div style={{ padding:'32px 48px', maxWidth:1280, margin:'0 auto', textAlign:'center' }}>
+          <h1 style={{ fontSize:48, color:P, fontWeight:900, marginTop:40 }}>Selamat Datang di ReadUp!</h1>
+          <p style={{ color:MUT, fontSize:18, marginBottom:40 }}>Kumpulkan poin dan tukarkan dengan hadiah menarik.</p>
+          <div style={{ display:'flex', gap:16, justifyContent:'center' }}>
+            <button className="btn-primary" style={{ background:P, color:'#fff' }} onClick={()=>go('rewards')}>🎁 Kunjungi Reward Store</button>
+            <button className="btn-primary" style={{ background:ACC, color:P }} onClick={()=>go('dashboard')}>👤 Buka Dashboard</button>
+          </div>
+        </div>
+      );
+    }
+
+    // Fitur 1: Reward Store (Interaktif)
+    function RewardsPage({ pts, redeem, redeemed }) {
+      return (
+        <div style={{ minHeight:'100vh', background:BG, paddingBottom:60 }}>
+          <div style={{ background:P, padding:'48px', color:'#fff', textAlign:'center', marginBottom:32 }}>
+            <h1 style={{ fontSize:36, fontWeight:900, marginBottom:16 }}>Reward Store</h1>
+            <div style={{ display:'inline-flex', alignItems:'center', gap:12, background:'rgba(255,255,255,0.1)', padding:'12px 24px', borderRadius:20 }}>
+              <span style={{ fontSize:28 }}>🪙</span>
+              <div style={{ textAlign:'left' }}>
+                <div style={{ fontSize:12, opacity:0.8 }}>Saldo Poin Kamu</div>
+                <div style={{ fontSize:24, fontWeight:800 }}>{pts.toLocaleString('id')} Poin</div>
+              </div>
+            </div>
+          </div>
+          <div style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:24, padding:'0 48px' }}>
+            {REWARDS.map(r=>{
+              const isRedeemed = redeemed.some(x=>x.id===r.id);
+              const isAffordable = pts >= r.pts;
+              return (
+                <div key={r.id} className="bento-hover" style={{ background:'#fff', borderRadius:24, overflow:'hidden', opacity: isRedeemed ? 0.6 : 1 }}>
+                  <div style={{ background: r.val ? r.vc+'20' : '#F1F5F9', height:140, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <span style={{ fontSize:60 }}>{r.em}</span>
+                  </div>
+                  <div style={{ padding:20 }}>
+                    <h3 style={{ fontSize:16, fontWeight:800, color:P, marginBottom:8 }}>{r.name}</h3>
+                    <div style={{ fontSize:18, fontWeight:900, color:ACC, marginBottom:16 }}>🪙 {r.pts.toLocaleString('id')}</div>
+                    <button onClick={()=>!isRedeemed && redeem(r)} disabled={isRedeemed || !isAffordable} style={{ width:'100%', padding:'12px', borderRadius:12, border:'none', fontWeight:700, cursor: isRedeemed||!isAffordable ? 'not-allowed' : 'pointer', background: isRedeemed ? '#E2E8F0' : isAffordable ? P : '#FEE2E2', color: isRedeemed ? '#94A3B8' : isAffordable ? '#fff' : '#EF4444' }}>
+                      {isRedeemed ? '✓ Sudah Ditukar' : isAffordable ? 'Tukar Sekarang' : 'Poin Tidak Cukup'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    // Fitur 2: User Dashboard
+    function DashboardPage({ pts, history, redeemed }) {
+      const allHistory = [...history, ...redeemed.map(r=>({ act:`Tukar Poin: ${r.name}`, pts:-r.pts, date:'Baru saja' }))];
+      
+      return (
+        <div style={{ padding:'48px', maxWidth:1000, margin:'0 auto' }}>
+          <h1 style={{ fontSize:32, fontWeight:900, color:P, marginBottom:32 }}>Dashboard Pengguna</h1>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 2fr', gap:32 }}>
+            <div style={{ background:P, color:'#fff', padding:32, borderRadius:24, textAlign:'center' }}>
+              <div style={{ width:80, height:80, background:ACC, borderRadius:'50%', fontSize:40, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px' }}>👤</div>
+              <h2 style={{ fontSize:24, fontWeight:800, marginBottom:8 }}>Thoriq</h2>
+              <div style={{ background:'rgba(255,255,255,0.2)', padding:'6px 16px', borderRadius:20, display:'inline-block', fontSize:14, fontWeight:700, marginBottom:24 }}>🥇 Member Gold</div>
+              <div style={{ background:PD, padding:20, borderRadius:16 }}>
+                <div style={{ fontSize:13, opacity:0.8, marginBottom:4 }}>Total Poin Aktif</div>
+                <div style={{ fontSize:32, fontWeight:900, color:ACC }}>🪙 {pts.toLocaleString('id')}</div>
+              </div>
+            </div>
+            
+            <div style={{ background:'#fff', borderRadius:24, padding:32, boxShadow:'0 4px 20px rgba(0,0,0,0.03)' }}>
+              <h3 style={{ fontSize:20, fontWeight:800, color:P, marginBottom:24 }}>Riwayat Aktivitas & Poin</h3>
+              {allHistory.map((h, i) => (
+                <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'16px 0', borderBottom:'1px solid #F1F5F9' }}>
+                  <div>
+                    <div style={{ fontWeight:700, color:P, fontSize:15, marginBottom:4 }}>{h.act}</div>
+                    <div style={{ fontSize:12, color:MUT }}>{h.date}</div>
+                  </div>
+                  <div style={{ fontWeight:900, fontSize:16, color: h.pts > 0 ? '#10B981' : '#EF4444' }}>
+                    {h.pts > 0 ? '+' : ''}{h.pts.toLocaleString('id')}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // App Component (Tidak menggunakan export default)
+    function ReadUp() {
+      const [pg, setPg] = useState('home');
+      const [pts, setPts] = useState(3500); // Saldo awal cukup untuk mendemokan tukar poin
+      const [redeemed, setRedeemed] = useState([]);
+      const [history, setHistory] = useState(BASE_HISTORY);
+      const [notif, setNotif] = useState(null);
+
+      const notify = (msg, type='success') => {
+        setNotif({msg, type});
+        setTimeout(()=>setNotif(null), 4000);
+      };
+
+      const redeem = (reward) => {
+        if (pts < reward.pts) {
+          notify('Poin tidak mencukupi!', 'error');
+          return;
+        }
+        setPts(prev => prev - reward.pts);
+        setRedeemed([...redeemed, reward]);
+        notify(`Berhasil menukar ${reward.name}! 🎉`);
+      };
+
+      const go = id => { window.scrollTo({top:0,behavior:'smooth'}); setPg(id); };
+
+      return (
+        <div>
+          {notif && <Notif n={notif} />}
+          <NavBar pg={pg} go={go} pts={pts} />
+          {pg==='home' && <HomePage go={go} pts={pts} />}
+          {pg==='rewards' && <RewardsPage pts={pts} redeem={redeem} redeemed={redeemed} />}
+          {pg==='dashboard' && <DashboardPage pts={pts} history={history} redeemed={redeemed} />}
+          {(pg==='articles' || pg==='programs') && <div style={{padding:'100px', textAlign:'center', fontSize:24, fontWeight:800, color:MUT}}>Halaman {pg} sedang dalam pengembangan. Kembali ke Home.</div>}
+        </div>
+      );
+    }
+
+    // Baris krusial untuk me-render aplikasi ke layar
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ReadUp />);
+  </script>
+</body>
+</html>
