@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ReadUp Prototype - Full Feature</title>
+  <title>ReadUp Prototype - Full Ecosystem</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -11,199 +11,217 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    :root {
-      --p: #1B4332; --pd: #081C15; --acc: #F4A261; --bg: #F8F9FA; --mut: #64748B; --text: #1E293B; --surface: #FFFFFF;
-    }
+    :root { --p: #1B4332; --pd: #081C15; --acc: #F4A261; --bg: #F8F9FA; --mut: #64748B; --text: #1E293B; --surface: #FFFFFF; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-    button, input { font-family: inherit; }
-    ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #F1F5F9; } ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
-    @keyframes fadeSlide { from { transform: translateX(80px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    .nav-link { background: none; border: none; padding: 8px 16px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
-    .bento-hover { transition: transform 0.2s, box-shadow 0.2s; }
-    .bento-hover:hover { transform: translateY(-6px); box-shadow: 0 12px 36px rgba(0,0,0,0.05); }
-    .btn-primary { background: var(--surface); color: var(--p); border: none; padding: 14px 28px; border-radius: 14px; font-weight: 800; cursor: pointer; font-size: 15px; transition: transform 0.15s; }
-    .btn-primary:hover { transform: scale(1.02); }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+    .bento-card { background: #fff; border-radius: 24px; padding: 24px; border: 1px solid rgba(0,0,0,0.05); transition: all 0.3s ease; }
+    .bento-hover:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
+    .btn-main { background: var(--p); color: #fff; border: none; padding: 12px 24px; border-radius: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    .btn-main:disabled { background: #E2E8F0; color: #94A3B8; cursor: not-allowed; }
   </style>
 </head>
 <body>
   <div id="root"></div>
   <script type="text/babel">
     const { useState, useEffect } = React;
-    const P = '#1B4332', PD = '#081C15', ACC = '#F4A261', BG = '#F8F9FA', MUT = '#64748B';
 
-    // Data Mockup
+    // --- DATA ---
+    const CATS = [
+      { name:"Budaya", icon:"🏛️", bg:"#FFF3E0" }, { name:"Pendidikan", icon:"🎓", bg:"#E8F5E9" },
+      { name:"Teknologi", icon:"💻", bg:"#E0F7FA" }, { name:"Ekonomi", icon:"📈", bg:"#FFFDE7" }
+    ];
+
+    const ARTS = [
+      { id:1, title:"Membaca di Era Digital", cat:"Pendidikan", author:"Rina M.", views:"2.3k", rt:5, exc:"Tantangan fokus di tengah gempuran konten pendek.", body:"Di era digital, kemampuan fokus kita tergerus. Membaca buku minimal 10 menit sehari dapat meningkatkan empati dan konsentrasi secara signifikan. ReadUp hadir untuk membantu Anda membangun kembali kebiasaan tersebut dengan sistem reward yang memotivasi." },
+      { id:2, title:"Investasi untuk Pemula", cat:"Ekonomi", author:"Budi S.", views:"1.8k", rt:4, exc:"Langkah awal mengelola keuangan dengan bijak.", body:"Investasi bukan soal seberapa besar uangnya, tapi seberapa dini Anda memulainya. Diversifikasi adalah kunci utama dalam menjaga aset Anda tetap aman dari inflasi." }
+    ];
+
     const REWARDS = [
-      { id:1, name:"Kaos ReadUp", pts:2500, stock:50, cat:"Merchandise", em:"👕" },
-      { id:2, name:"Tumbler Premium", pts:2000, stock:30, cat:"Merchandise", em:"🥤" },
-      { id:3, name:"Voucher Belanja Rp 50.000", pts:5000, stock:100, cat:"Voucher", em:"🎫", val:"50.000", vc:'#10B981' },
-      { id:4, name:"Voucher GoPay Rp 30.000", pts:3500, stock:150, cat:"E-Wallet", em:"💳", val:"30.000", vc:'#0EA5E9' },
-    ];
-    
-    const BASE_HISTORY = [
-      { act:"Bonus baca 3 artikel berturut-turut", pts:10, date:"Hari ini, 09:08" },
-      { act:"Referral teman: Dina bergabung", pts:20, date:"Kemarin, 15:30" },
-      { act:"Membaca artikel 'Batik Nusantara'", pts:5, date:"3 hari lalu" },
+      { id:1, name:"Voucher GoPay 30rb", pts:3500, em:"💳", vc:"#0EA5E9" },
+      { id:2, name:"Tumbler Premium", pts:2000, em:"🥤", vc:"#1B4332" },
+      { id:3, name:"Voucher Belanja 50rb", pts:5000, em:"🎫", vc:"#10B981" }
     ];
 
-    // Komponen Notifikasi
+    // --- COMPONENTS ---
     function Notif({ n }) {
       return (
-        <div style={{ position:'fixed', top:90, right:24, zIndex:9999, background: n.type==='error'?'#EF4444':P, color:'#fff', padding:'16px 24px', borderRadius:16, boxShadow:'0 10px 30px rgba(0,0,0,0.15)', display:'flex', alignItems:'center', gap:12, maxWidth:360, fontSize:15, fontWeight:600, animation:'fadeSlide .3s' }}>
-          <span style={{ fontSize:20 }}>{n.type==='error'?'⚠️':'✨'}</span>{n.msg}
+        <div style={{ position:'fixed', top:24, right:24, zIndex:1000, background: n.type==='err'?'#EF4444':"#1B4332", color:'#fff', padding:'16px 24px', borderRadius:16, boxShadow:'0 10px 25px rgba(0,0,0,0.1)', animation:'fadeSlide 0.3s' }}>
+          {n.msg}
         </div>
       );
     }
 
-    // Komponen Navigasi
-    function NavBar({ pg, go, pts }) {
-      const links = [{id:'home',lbl:'Beranda'}, {id:'articles',lbl:'Artikel'}, {id:'programs',lbl:'Program'}, {id:'rewards',lbl:'Reward Store'}];
-      return (
-        <nav style={{ background:'rgba(255,255,255,0.85)', backdropFilter:'blur(16px)', position:'sticky', top:0, zIndex:200, height:80, display:'flex', alignItems:'center', padding:'0 48px', gap:12, borderBottom:'1px solid rgba(0,0,0,.05)' }}>
-          <div onClick={()=>go('home')} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', color:P, fontWeight:900, fontSize:22, marginRight:32 }}>
-            <div style={{background:P, color:'#fff', width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center'}}>📖</div> ReadUp
-          </div>
-          <div style={{ display:'flex', flex:1, gap:8 }}>
-            {links.map(l=><button key={l.id} className="nav-link" onClick={()=>go(l.id)} style={{ color: pg===l.id?P:MUT, background: pg===l.id?'rgba(27,67,50,0.08)':'transparent', fontWeight: pg===l.id?700:500 }}>{l.lbl}</button>)}
-          </div>
-          <div onClick={()=>go('dashboard')} style={{ display:'flex', alignItems:'center', gap:12, background:'#fff', borderRadius:16, padding:'8px 16px 8px 8px', cursor:'pointer', border:'1px solid #E2E8F0', boxShadow:'0 2px 8px rgba(0,0,0,0.02)' }}>
-            <div style={{ width:36, height:36, borderRadius:12, background:ACC, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>👤</div>
-            <div>
-              <div style={{ color:P, fontSize:13, fontWeight:800 }}>Hai, Thoriq</div>
-              <div style={{ color:ACC, fontSize:12, fontWeight:800 }}>🪙 {pts.toLocaleString('id')} Poin</div>
-            </div>
-          </div>
-        </nav>
-      );
-    }
-
-    // Komponen Halaman Home (Sederhana untuk demo)
-    function HomePage({ go, pts }) {
-      return (
-        <div style={{ padding:'32px 48px', maxWidth:1280, margin:'0 auto', textAlign:'center' }}>
-          <h1 style={{ fontSize:48, color:P, fontWeight:900, marginTop:40 }}>Selamat Datang di ReadUp!</h1>
-          <p style={{ color:MUT, fontSize:18, marginBottom:40 }}>Kumpulkan poin dan tukarkan dengan hadiah menarik.</p>
-          <div style={{ display:'flex', gap:16, justifyContent:'center' }}>
-            <button className="btn-primary" style={{ background:P, color:'#fff' }} onClick={()=>go('rewards')}>🎁 Kunjungi Reward Store</button>
-            <button className="btn-primary" style={{ background:ACC, color:P }} onClick={()=>go('dashboard')}>👤 Buka Dashboard</button>
-          </div>
-        </div>
-      );
-    }
-
-    // Fitur 1: Reward Store (Interaktif)
-    function RewardsPage({ pts, redeem, redeemed }) {
-      return (
-        <div style={{ minHeight:'100vh', background:BG, paddingBottom:60 }}>
-          <div style={{ background:P, padding:'48px', color:'#fff', textAlign:'center', marginBottom:32 }}>
-            <h1 style={{ fontSize:36, fontWeight:900, marginBottom:16 }}>Reward Store</h1>
-            <div style={{ display:'inline-flex', alignItems:'center', gap:12, background:'rgba(255,255,255,0.1)', padding:'12px 24px', borderRadius:20 }}>
-              <span style={{ fontSize:28 }}>🪙</span>
-              <div style={{ textAlign:'left' }}>
-                <div style={{ fontSize:12, opacity:0.8 }}>Saldo Poin Kamu</div>
-                <div style={{ fontSize:24, fontWeight:800 }}>{pts.toLocaleString('id')} Poin</div>
-              </div>
-            </div>
-          </div>
-          <div style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:24, padding:'0 48px' }}>
-            {REWARDS.map(r=>{
-              const isRedeemed = redeemed.some(x=>x.id===r.id);
-              const isAffordable = pts >= r.pts;
-              return (
-                <div key={r.id} className="bento-hover" style={{ background:'#fff', borderRadius:24, overflow:'hidden', opacity: isRedeemed ? 0.6 : 1 }}>
-                  <div style={{ background: r.val ? r.vc+'20' : '#F1F5F9', height:140, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <span style={{ fontSize:60 }}>{r.em}</span>
-                  </div>
-                  <div style={{ padding:20 }}>
-                    <h3 style={{ fontSize:16, fontWeight:800, color:P, marginBottom:8 }}>{r.name}</h3>
-                    <div style={{ fontSize:18, fontWeight:900, color:ACC, marginBottom:16 }}>🪙 {r.pts.toLocaleString('id')}</div>
-                    <button onClick={()=>!isRedeemed && redeem(r)} disabled={isRedeemed || !isAffordable} style={{ width:'100%', padding:'12px', borderRadius:12, border:'none', fontWeight:700, cursor: isRedeemed||!isAffordable ? 'not-allowed' : 'pointer', background: isRedeemed ? '#E2E8F0' : isAffordable ? P : '#FEE2E2', color: isRedeemed ? '#94A3B8' : isAffordable ? '#fff' : '#EF4444' }}>
-                      {isRedeemed ? '✓ Sudah Ditukar' : isAffordable ? 'Tukar Sekarang' : 'Poin Tidak Cukup'}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      );
-    }
-
-    // Fitur 2: User Dashboard
-    function DashboardPage({ pts, history, redeemed }) {
-      const allHistory = [...history, ...redeemed.map(r=>({ act:`Tukar Poin: ${r.name}`, pts:-r.pts, date:'Baru saja' }))];
-      
-      return (
-        <div style={{ padding:'48px', maxWidth:1000, margin:'0 auto' }}>
-          <h1 style={{ fontSize:32, fontWeight:900, color:P, marginBottom:32 }}>Dashboard Pengguna</h1>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 2fr', gap:32 }}>
-            <div style={{ background:P, color:'#fff', padding:32, borderRadius:24, textAlign:'center' }}>
-              <div style={{ width:80, height:80, background:ACC, borderRadius:'50%', fontSize:40, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px' }}>👤</div>
-              <h2 style={{ fontSize:24, fontWeight:800, marginBottom:8 }}>Thoriq</h2>
-              <div style={{ background:'rgba(255,255,255,0.2)', padding:'6px 16px', borderRadius:20, display:'inline-block', fontSize:14, fontWeight:700, marginBottom:24 }}>🥇 Member Gold</div>
-              <div style={{ background:PD, padding:20, borderRadius:16 }}>
-                <div style={{ fontSize:13, opacity:0.8, marginBottom:4 }}>Total Poin Aktif</div>
-                <div style={{ fontSize:32, fontWeight:900, color:ACC }}>🪙 {pts.toLocaleString('id')}</div>
-              </div>
-            </div>
-            
-            <div style={{ background:'#fff', borderRadius:24, padding:32, boxShadow:'0 4px 20px rgba(0,0,0,0.03)' }}>
-              <h3 style={{ fontSize:20, fontWeight:800, color:P, marginBottom:24 }}>Riwayat Aktivitas & Poin</h3>
-              {allHistory.map((h, i) => (
-                <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'16px 0', borderBottom:'1px solid #F1F5F9' }}>
-                  <div>
-                    <div style={{ fontWeight:700, color:P, fontSize:15, marginBottom:4 }}>{h.act}</div>
-                    <div style={{ fontSize:12, color:MUT }}>{h.date}</div>
-                  </div>
-                  <div style={{ fontWeight:900, fontSize:16, color: h.pts > 0 ? '#10B981' : '#EF4444' }}>
-                    {h.pts > 0 ? '+' : ''}{h.pts.toLocaleString('id')}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // App Component (Tidak menggunakan export default)
+    // --- MAIN APP ---
     function ReadUp() {
       const [pg, setPg] = useState('home');
-      const [pts, setPts] = useState(3500); // Saldo awal cukup untuk mendemokan tukar poin
+      const [pts, setPts] = useState(1250);
+      const [history, setHistory] = useState([{act:"Bonus Registrasi", pts:1250, date:"15 Mei 2026"}]);
+      const [readSet, setReadSet] = useState(new Set());
       const [redeemed, setRedeemed] = useState([]);
-      const [history, setHistory] = useState(BASE_HISTORY);
+      const [selArt, setSelArt] = useState(null);
       const [notif, setNotif] = useState(null);
 
-      const notify = (msg, type='success') => {
+      const notify = (msg, type='suc') => {
         setNotif({msg, type});
-        setTimeout(()=>setNotif(null), 4000);
+        setTimeout(() => setNotif(null), 3000);
       };
 
-      const redeem = (reward) => {
-        if (pts < reward.pts) {
-          notify('Poin tidak mencukupi!', 'error');
-          return;
+      const addHistory = (act, p) => {
+        setHistory(prev => [{act, pts:p, date:"Baru saja"}, ...prev]);
+      };
+
+      const earnPoints = (art) => {
+        if (!readSet.has(art.id)) {
+          setPts(prev => prev + 5);
+          setReadSet(new Set([...readSet, art.id]));
+          addHistory(`Membaca: ${art.title}`, 5);
+          notify("Hore! +5 Poin ditambahkan");
         }
-        setPts(prev => prev - reward.pts);
-        setRedeemed([...redeemed, reward]);
-        notify(`Berhasil menukar ${reward.name}! 🎉`);
       };
 
-      const go = id => { window.scrollTo({top:0,behavior:'smooth'}); setPg(id); };
+      const redeemReward = (r) => {
+        if (pts >= r.pts) {
+          setPts(prev => prev - r.pts);
+          setRedeemed([...redeemed, r]);
+          addHistory(`Tukar Reward: ${r.name}`, -r.pts);
+          notify(`Berhasil menukar ${r.name}!`);
+        } else {
+          notify("Poin kamu belum cukup", "err");
+        }
+      };
+
+      // Timer Logic untuk Artikel
+      const [timer, setTimer] = useState(0);
+      useEffect(() => {
+        let interval;
+        if (pg === 'article' && selArt && !readSet.has(selArt.id)) {
+          interval = setInterval(() => {
+            setTimer(t => {
+              if (t >= 10) { // Demo: 10 detik untuk dapat poin
+                clearInterval(interval);
+                earnPoints(selArt);
+                return 10;
+              }
+              return t + 1;
+            });
+          }, 1000);
+        } else {
+          setTimer(0);
+        }
+        return () => clearInterval(interval);
+      }, [pg, selArt]);
 
       return (
-        <div>
+        <div style={{ minHeight:'100vh', background: 'var(--bg)' }}>
           {notif && <Notif n={notif} />}
-          <NavBar pg={pg} go={go} pts={pts} />
-          {pg==='home' && <HomePage go={go} pts={pts} />}
-          {pg==='rewards' && <RewardsPage pts={pts} redeem={redeem} redeemed={redeemed} />}
-          {pg==='dashboard' && <DashboardPage pts={pts} history={history} redeemed={redeemed} />}
-          {(pg==='articles' || pg==='programs') && <div style={{padding:'100px', textAlign:'center', fontSize:24, fontWeight:800, color:MUT}}>Halaman {pg} sedang dalam pengembangan. Kembali ke Home.</div>}
+          
+          {/* Nav */}
+          <nav style={{ background:'#fff', height:80, display:'flex', alignItems:'center', padding:'0 48px', borderBottom:'1px solid #eee', position:'sticky', top:0, zIndex:100 }}>
+            <div style={{ fontWeight:900, fontSize:22, color:'var(--p)', flex:1, cursor:'pointer' }} onClick={()=>setPg('home')}>📖 ReadUp</div>
+            <div style={{ display:'flex', gap:24, marginRight:32 }}>
+              {['articles', 'rewards', 'dashboard'].map(m => (
+                <span key={m} onClick={()=>setPg(m)} style={{ cursor:'pointer', fontWeight:600, color: pg===m?'var(--p)':'var(--mut)', textTransform:'capitalize' }}>{m}</span>
+              ))}
+            </div>
+            <div onClick={()=>setPg('dashboard')} style={{ display:'flex', alignItems:'center', gap:10, background:'#F1F5F9', padding:'8px 16px', borderRadius:12, cursor:'pointer' }}>
+              <div style={{ fontSize:12, fontWeight:800 }}>🪙 {pts} Pts</div>
+            </div>
+          </nav>
+
+          {/* Pages */}
+          <div style={{ padding:'40px 48px' }}>
+            {pg === 'home' && (
+              <div style={{ textAlign:'center' }}>
+                <h1 style={{ fontSize:42, fontWeight:900, color:'var(--p)' }}>Halo, Thoriq!</h1>
+                <p style={{ color:'var(--mut)', marginBottom:32 }}>Siap menambah wawasan dan poin hari ini?</p>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:24, maxWidth:800, margin:'0 auto' }}>
+                  <div className="bento-card bento-hover" onClick={()=>setPg('articles')} style={{ cursor:'pointer' }}>
+                    <div style={{ fontSize:40 }}>📚</div>
+                    <h3 style={{ marginTop:12 }}>Baca Artikel</h3>
+                  </div>
+                  <div className="bento-card bento-hover" onClick={()=>setPg('rewards')} style={{ cursor:'pointer' }}>
+                    <div style={{ fontSize:40 }}>🎁</div>
+                    <h3 style={{ marginTop:12 }}>Tukar Reward</h3>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {pg === 'articles' && (
+              <div>
+                <h2 style={{ marginBottom:24 }}>Jelajahi Artikel</h2>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:24 }}>
+                  {ARTS.map(a => (
+                    <div key={a.id} className="bento-card bento-hover" onClick={()=>{setSelArt(a); setPg('article')}} style={{ cursor:'pointer' }}>
+                      <div style={{ background:'var(--p)', color:'#fff', padding:'4px 12px', borderRadius:8, display:'inline-block', fontSize:12, marginBottom:12 }}>{a.cat}</div>
+                      <h3>{a.title}</h3>
+                      <p style={{ color:'var(--mut)', marginTop:8 }}>{a.exc}</p>
+                      <div style={{ marginTop:16, fontSize:12, fontWeight:700, color:'var(--acc)' }}>{readSet.has(a.id)?'✓ Selesai Dibaca':'+5 Poin Tersedia'}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {pg === 'article' && selArt && (
+              <div style={{ maxWidth:700, margin:'0 auto', background:'#fff', padding:40, borderRadius:24 }}>
+                <button onClick={()=>setPg('articles')} style={{ background:'none', border:'none', color:'var(--mut)', cursor:'pointer', marginBottom:24 }}>← Kembali</button>
+                <h1 style={{ marginBottom:16 }}>{selArt.title}</h1>
+                <div style={{ marginBottom:24, padding:'12px', background:'#F8F9FA', borderRadius:12 }}>
+                  {readSet.has(selArt.id) ? '✅ Artikel ini sudah memberi Anda poin.' : `📖 Baca selama ${10-timer} detik lagi untuk dapat poin.`}
+                </div>
+                <p style={{ lineHeight:1.8, fontSize:18, color:'#334155' }}>{selArt.body}</p>
+              </div>
+            )}
+
+            {pg === 'rewards' && (
+              <div>
+                <h2 style={{ marginBottom:8 }}>Reward Store</h2>
+                <p style={{ color:'var(--mut)', marginBottom:32 }}>Tukar poinmu dengan benefit eksklusif.</p>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:24 }}>
+                  {REWARDS.map(r => (
+                    <div key={r.id} className="bento-card">
+                      <div style={{ fontSize:50, marginBottom:16 }}>{r.em}</div>
+                      <h3>{r.name}</h3>
+                      <div style={{ fontSize:20, fontWeight:900, color:'var(--acc)', margin:'12px 0' }}>🪙 {r.pts}</div>
+                      <button className="btn-main" disabled={pts < r.pts} onClick={()=>redeemReward(r)} style={{ width:'100%' }}>Tukar Sekarang</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {pg === 'dashboard' && (
+              <div style={{ display:'grid', gridTemplateColumns:'300px 1fr', gap:32 }}>
+                <div className="bento-card" style={{ background:'var(--p)', color:'#fff', textAlign:'center' }}>
+                  <div style={{ width:80, height:80, background:'var(--acc)', borderRadius:99, margin:'0 auto 16px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:30 }}>👤</div>
+                  <h2>Thoriq</h2>
+                  <p style={{ opacity:0.8 }}>Professional Member</p>
+                  <div style={{ marginTop:32, background:'rgba(255,255,255,0.1)', padding:20, borderRadius:16 }}>
+                    <div style={{ fontSize:12 }}>Total Poin Aktif</div>
+                    <div style={{ fontSize:32, fontWeight:900, color:'var(--acc)' }}>{pts}</div>
+                  </div>
+                  <div style={{ marginTop:20, fontSize:13 }}>📖 {readSet.size} Artikel Dibaca</div>
+                </div>
+                <div className="bento-card">
+                  <h3 style={{ marginBottom:20 }}>Riwayat Aktivitas</h3>
+                  {history.map((h,i) => (
+                    <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'16px 0', borderBottom:'1px solid #f0f0f0' }}>
+                      <div>
+                        <div style={{ fontWeight:700 }}>{h.act}</div>
+                        <div style={{ fontSize:12, color:'var(--mut)' }}>{h.date}</div>
+                      </div>
+                      <div style={{ fontWeight:800, color: h.pts > 0 ? '#10B981':'#EF4444' }}>{h.pts > 0 ? '+':''}{h.pts}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       );
     }
 
-    // Baris krusial untuk me-render aplikasi ke layar
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<ReadUp />);
   </script>
