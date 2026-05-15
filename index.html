@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadUp Prototype - Enhanced Behance UI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --p: #1B4332;
+      --pd: #081C15;
+      --acc: #F4A261;
+      --bg: #F8F9FA;
+      --mut: #64748B;
+      --text: #1E293B;
+      --surface: #FFFFFF;
+      --radius: 24px;
+      --shadow: 0 12px 36px rgba(0,0,0,0.05);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    button { font-family: inherit; }
+    input { font-family: inherit; }
+    
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #F1F5F9; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+    @keyframes fadeSlide { 
+      from { transform: translateX(80px); opacity: 0; } 
+      to { transform: translateX(0); opacity: 1; } 
+    }
+    
+    .nav-link {
+      background: none; border: none; padding: 8px 16px; border-radius: 12px;
+      cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;
+    }
+    
+    .bento-hover {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .bento-hover:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-primary {
+      background: var(--surface); color: var(--p); border: none;
+      padding: 14px 28px; border-radius: 14px; font-weight: 800;
+      cursor: pointer; font-size: 15px; transition: transform 0.15s;
+    }
+    .btn-primary:hover { transform: scale(1.02); }
+
+    .btn-outline {
+      background: transparent; color: var(--surface);
+      border: 2px solid rgba(255,255,255,0.4);
+      padding: 12px 28px; border-radius: 14px; font-weight: 700;
+      cursor: pointer; font-size: 15px; transition: all 0.2s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const P = '#1B4332', PD = '#081C15', ACC = '#F4A261', BG = '#F8F9FA', MUT = '#64748B';
+
+    const CATS = [
+      { name:"Budaya", icon:"🏛️", count:128, desc:"Mengenal budaya Indonesia lebih dalam.", bg:"#FFF3E0" },
+      { name:"Seni", icon:"🎨", count:96, desc:"Inspirasi seni untuk kehidupan lebih indah.", bg:"#F3E5F5" },
+      { name:"Sosial", icon:"👥", count:142, desc:"Informasi sosial untuk masyarakat peduli.", bg:"#E3F2FD" },
+      { name:"Pendidikan", icon:"🎓", count:212, desc:"Pengetahuan, tips, dan dunia pendidikan.", bg:"#E8F5E9" },
+      { name:"Ekonomi", icon:"📈", count:98, desc:"Wawasan ekonomi hidup berkualitas.", bg:"#FFFDE7" },
+      { name:"Kesehatan", icon:"💚", count:112, desc:"Tips kesehatan untuk hidup lebih baik.", bg:"#F1F8E9" },
+      { name:"Teknologi", icon:"💻", count:87, desc:"Inovasi teknologi masa kini.", bg:"#E0F7FA" },
+      { name:"Literasi Digital", icon:"📱", count:65, desc:"Panduan cerdas di era digital.", bg:"#FCE4EC" },
+    ];
+
+    const ARTS = [
+      { id:1, title:"Membaca Buku di Era Digital: Tantangan dan Solusinya", cat:"Literasi Digital", author:"Rina Marlina", date:"12 Mei 2026", rt:4, views:2341, likes:187, trending:true,
+        exc:"Di era digital yang serba cepat, kebiasaan membaca buku semakin tergerus. Bagaimana menyikapinya?",
+        body:"Di era digital yang serba cepat dan penuh distraksi, kebiasaan membaca buku konvensional semakin tergerus oleh konten pendek berbasis media sosial seperti TikTok, Instagram Reels, dan YouTube Shorts.\n\nFenomena ini bukan tanpa alasan. Konten pendek dirancang secara algoritmik untuk memberikan dopamin instan, menciptakan siklus ketergantungan yang sulit diputus. Otak kita secara bertahap kehilangan kemampuan untuk fokus dalam jangka waktu panjang.\n\nNamun, membaca buku memiliki manfaat yang tidak bisa digantikan. Sebuah studi dari University of Sussex menunjukkan bahwa membaca selama 6 menit saja dapat mengurangi tingkat stres hingga 68%.\n\nBagaimana solusinya? Pertama, tetapkan waktu membaca harian minimal 20 menit. Kedua, gunakan aplikasi pemblokir media sosial saat sesi membaca. Ketiga, bergabunglah dengan komunitas baca seperti ReadUp untuk mendapatkan motivasi dan reward.\n\nDengan strategi yang tepat, kita bisa menjaga tradisi membaca di tengah gempuran era digital. Ingatlah: membaca adalah investasi terbaik untuk pikiran Anda." },
+      { id:2, title:"5 Strategi Belajar Efektif untuk Generasi Z", cat:"Pendidikan", author:"Ahmad Fauzi", date:"10 Mei 2026", rt:3, views:1823, likes:145,
+        exc:"Generasi Z memiliki cara belajar yang unik. Temukan strategi paling efektif untuk mereka.",
+        body:"Generasi Z, mereka yang lahir antara 1997–2012, tumbuh besar dengan smartphone di tangan. Cara belajar mereka berbeda secara fundamental dari generasi sebelumnya.\n\nPertama, mereka lebih menyukai pembelajaran visual dan interaktif. Video penjelasan singkat, infografis, dan kuis interaktif jauh lebih efektif daripada teks panjang.\n\nKedua, Gen Z membutuhkan umpan balik yang cepat. Sistem gamifikasi—seperti yang diterapkan ReadUp—terbukti meningkatkan keterlibatan belajar hingga 48%.\n\nKetiga, belajar secara kolaboratif dalam kelompok kecil. Gen Z lebih produktif ketika mereka bisa berdiskusi dan berbagi perspektif.\n\nKeempat, sesi belajar pendek namun konsisten (Pomodoro Technique) lebih efektif daripada belajar maraton.\n\nKelima, kaitkan materi dengan konteks nyata. Gen Z belajar lebih baik ketika mereka memahami relevansi praktis dari apa yang dipelajari." },
+      { id:3, title:"Batik Nusantara: Warisan Budaya yang Mendunia", cat:"Budaya", author:"Siti Rahayu", date:"8 Mei 2026", rt:5, views:3102, likes:256,
+        exc:"Di balik setiap motif batik tersimpan filosofi mendalam tentang kehidupan masyarakat Indonesia.",
+        body:"Batik telah diakui oleh UNESCO sebagai Warisan Kemanusiaan untuk Budaya Lisan dan Nonbendawi pada tahun 2009. Namun jauh sebelum pengakuan internasional itu, batik telah menjadi bagian tak terpisahkan dari kehidupan masyarakat Jawa dan Nusantara.\n\nSetiap motif batik memiliki makna filosofis yang dalam. Motif Parang melambangkan keberanian dan semangat juang yang tidak pernah padam. Motif Kawung mewakili kemurnian dan kesempurnaan.\n\nProses pembuatan batik tulis yang memakan waktu berhari-hari mencerminkan nilai kesabaran dan ketelitian yang dijunjung tinggi dalam budaya Jawa.\n\nKini, batik tidak hanya hadir dalam bentuk kain tradisional. Para desainer muda Indonesia berhasil mengintegrasikan motif batik ke dalam fashion kontemporer, streetwear, bahkan desain interior modern.\n\nInilah bukti bahwa warisan budaya tidak harus kaku—ia bisa terus berkembang dan relevan menembus batas zaman." },
+      { id:4, title:"Investasi Saham untuk Pemula: Mulai dari Mana?", cat:"Ekonomi", author:"Budi Santoso", date:"7 Mei 2026", rt:6, views:4201, likes:389, trending:true,
+        exc:"Panduan lengkap untuk anak muda yang ingin mulai investasi saham dari nol.",
+        body:"Investasi saham sering kali terasa menakutkan bagi pemula. Namun dengan pemahaman yang tepat, siapa pun bisa memulainya.\n\nLangkah pertama adalah membuka rekening efek. Pilihlah sekuritas yang terdaftar di OJK dan memiliki aplikasi yang user-friendly seperti Ajaib, Bibit, atau Stockbit.\n\nLangkah kedua, pelajari konsep dasar: saham adalah kepemilikan sebagian kecil dari sebuah perusahaan. Ketika perusahaan untung, nilai saham cenderung naik.\n\nLangkah ketiga, mulailah dengan perusahaan yang Anda kenal. Familiar dengan produk membantu Anda memahami prospek bisnis.\n\nLangkah keempat, diversifikasi portofolio. Jangan taruh semua telur dalam satu keranjang.\n\nLangkah kelima dan terpenting: investasikan hanya uang yang tidak Anda butuhkan dalam jangka pendek. Saham adalah investasi jangka panjang." },
+    ];
+
+    const REWARDS = [
+      { id:1, name:"Kaos ReadUp", pts:2500, stock:50, cat:"Merchandise", em:"👕" },
+      { id:2, name:"Tumbler Premium", pts:2000, stock:30, cat:"Merchandise", em:"🥤" },
+      { id:3, name:"Voucher Belanja Rp 50.000", pts:5000, stock:100, cat:"Voucher", em:"🎫", val:"50.000", vc:'#10B981' },
+      { id:4, name:"Voucher GoPay Rp 30.000", pts:3500, stock:150, cat:"E-Wallet", em:"💳", val:"30.000", vc:'#0EA5E9' },
+    ];
+
+    const PROGS = [
+      { name:"Program Donasi Reward", desc:"Donasi poin Anda untuk dukung literasi Indonesia.", icon:"⭐", color:"#EF4444" },
+      { name:"Donasi Literasi", desc:"Donasi untuk mendukung pendidikan dan budaya baca.", icon:"📚", color:"#F59E0B" },
+      { name:"Program Sekolah", desc:"Bersama sekolah dan komunitas membangun literasi.", icon:"🏫", color:"#3B82F6" },
+    ];
+
+    const BASE_HISTORY = [
+      { act:"Bonus baca 3 artikel berturut-turut", pts:10, date:"Hari ini, 09:08" },
+      { act:"Referral teman: Dina bergabung", pts:20, date:"Kemarin, 15:30" },
+      { act:"Membaca artikel 'Batik Nusantara'", pts:5, date:"3 hari lalu" },
+    ];
+
+    const catIcon = c => ({ 'Literasi Digital':'📱', Pendidikan:'🎓', Budaya:'🏛️', Ekonomi:'📈', Kesehatan:'💚', Teknologi:'💻', Seni:'🎨', Sosial:'👥' }[c] || '📄');
+
+    // Components
+    function Notif({ n }) {
+      return (
+        <div style={{ position:'fixed', top:90, right:24, zIndex:9999, background: n.type==='error'?'#EF4444':P,
+          color:'#fff', padding:'16px 24px', borderRadius:16, boxShadow:'0 10px 30px rgba(0,0,0,0.15)',
+          display:'flex', alignItems:'center', gap:12, maxWidth:360, fontSize:15, fontWeight:600,
+          animation:'fadeSlide .3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+          <span style={{ fontSize:20 }}>{n.type==='error'?'⚠️':'✨'}</span>{n.msg}
+        </div>
+      );
+    }
+
+    function NavBar({ pg, go, pts }) {
+      const links = [
+        {id:'home',lbl:'Beranda'}, {id:'articles',lbl:'Artikel'},
+        {id:'programs',lbl:'Program'}, {id:'rewards',lbl:'Reward Store'}
+      ];
+      return (
+        <nav style={{ background:'rgba(255,255,255,0.85)', backdropFilter:'blur(16px)', position:'sticky', top:0, zIndex:200, height:80,
+          display:'flex', alignItems:'center', padding:'0 48px', gap:12, borderBottom:'1px solid rgba(0,0,0,.05)', transition:'all 0.3s' }}>
+          <div onClick={()=>go('home')} style={{ display:'flex', alignItems:'center', gap:10,
+            cursor:'pointer', color:P, fontWeight:900, fontSize:22, marginRight:32, flexShrink:0, letterSpacing:'-0.5px' }}>
+            <div style={{background:P, color:'#fff', width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center'}}>📖</div>
+            ReadUp
+          </div>
+          <div style={{ display:'flex', flex:1, gap:8 }}>
+            {links.map(l=>(
+              <button key={l.id} className="nav-link" onClick={()=>go(l.id)} style={{
+                color: pg===l.id?P:MUT, background: pg===l.id?'rgba(27,67,50,0.08)':'transparent',
+                fontWeight: pg===l.id?700:500 }}>{l.lbl}</button>
+            ))}
+          </div>
+          <div style={{ display:'flex', alignItems:'center', background:'#F1F5F9',
+            borderRadius:14, padding:'10px 16px', gap:8, marginRight:16, border:'1px solid #E2E8F0' }}>
+            <span style={{ color:MUT, fontSize:14 }}>🔍</span>
+            <input placeholder="Cari artikel..." style={{ background:'none', border:'none', outline:'none',
+              color:P, fontSize:14, width:140, fontWeight:500 }} />
+          </div>
+          <div onClick={()=>go('dashboard')} style={{ display:'flex', alignItems:'center', gap:12,
+            background:'#fff', borderRadius:16, padding:'8px 16px 8px 8px', cursor:'pointer', border:'1px solid #E2E8F0',
+            boxShadow:'0 2px 8px rgba(0,0,0,0.02)' }}>
+            <div style={{ width:36, height:36, borderRadius:12, background:ACC,
+              display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>👤</div>
+            <div>
+              <div style={{ color:P, fontSize:13, fontWeight:800 }}>Hai, Budi</div>
+              <div style={{ color:ACC, fontSize:12, fontWeight:800 }}>🪙 {pts.toLocaleString('id')} Poin</div>
+            </div>
+          </div>
+        </nav>
+      );
+    }
+
+    function Section({ title, onMore, children, mt=0 }) {
+      return (
+        <div style={{ marginTop:mt }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+            <h2 style={{ margin:0, fontSize: 24, fontWeight:800, color:P, letterSpacing:'-0.5px' }}>{title}</h2>
+            {onMore && <button onClick={onMore} style={{ background:'transparent', border:'none',
+              cursor:'pointer', fontSize:14, color:ACC, fontWeight:700 }}>Lihat Semua →</button>}
+          </div>
+          {children}
+        </div>
+      );
+    }
+
+    function HomePage({ go, setArt, pts }) {
+      return (
+        <div>
+          {/* Hero Bento */}
+          <div style={{ padding:'32px 48px' }}>
+            <div style={{ maxWidth:1280, margin:'0 auto', display:'grid', gridTemplateColumns:'2fr 1fr', gap:24 }}>
+              
+              <div style={{ background:`linear-gradient(135deg, ${P} 0%, #2D6A4F 100%)`, borderRadius:'32px', padding:'56px', position:'relative', overflow:'hidden', display:'flex', flexDirection:'column', justifyContent:'center' }}>
+                <div style={{ position:'relative', zIndex:2 }}>
+                  <div style={{background:'rgba(255,255,255,0.2)', backdropFilter:'blur(10px)', color:'#fff', padding:'6px 14px', borderRadius:20, display:'inline-block', fontSize:13, fontWeight:700, marginBottom:24}}>🚀 Platform Literasi Digital</div>
+                  <h1 style={{ color:'#fff', fontSize:56, fontWeight:900, lineHeight:1.1, margin:'0 0 20px', letterSpacing:'-1px' }}>
+                    Tingkatkan Ilmu,<br/>Raih Hadiahnya.
+                  </h1>
+                  <p style={{ color:'rgba(255,255,255,.8)', fontSize:16, maxWidth:480, lineHeight:1.6, margin:'0 0 32px' }}>
+                    Baca artikel berkualitas di ReadUp, kumpulkan poin dari setiap menit yang kamu habiskan, dan tukarkan dengan berbagai reward eksklusif.
+                  </p>
+                  <div style={{ display:'flex', gap:16 }}>
+                    <button className="btn-primary" onClick={()=>go('articles')}>📖 Mulai Membaca</button>
+                    <button className="btn-outline" onClick={()=>go('programs')}>Lebih Lanjut</button>
+                  </div>
+                </div>
+                <div style={{ position:'absolute', right:-40, bottom:-40, fontSize:280, opacity:0.1, transform:'rotate(-15deg)' }}>📚</div>
+              </div>
+
+              <div style={{ display:'flex', flexDirection:'column', gap:24 }}>
+                <div className="bento-card bento-hover" style={{ flex:1, display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center', background:ACC, border:'none' }}>
+                  <div style={{ color:P, fontSize:15, fontWeight:700, marginBottom:8 }}>Saldo Poin Aktif</div>
+                  <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>
+                    <span style={{ fontSize:40 }}>🪙</span>
+                    <span style={{ color:P, fontSize:52, fontWeight:900, letterSpacing:'-2px' }}>{pts.toLocaleString('id')}</span>
+                  </div>
+                  <button onClick={()=>go('dashboard')} style={{ background:P, color:'#fff', border:'none', padding:'12px 24px', borderRadius:14, fontWeight:700, cursor:'pointer', width:'80%', transition:'transform 0.2s' }}>Riwayat Poin</button>
+                </div>
+                
+                <div className="bento-card bento-hover" onClick={()=>go('rewards')} style={{ flex:0.7, cursor:'pointer', display:'flex', alignItems:'center', gap:20, background:PD, border:'none', color:'#fff' }}>
+                  <div style={{fontSize:48}}>🎁</div>
+                  <div>
+                    <div style={{fontSize:18, fontWeight:800, marginBottom:4}}>Reward Store</div>
+                    <div style={{fontSize:13, color:'rgba(255,255,255,0.7)'}}>Tukar poinmu sekarang →</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ padding:'16px 48px 64px', maxWidth:1280, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 340px', gap:32 }}>
+            <div>
+              <Section title="Kategori Artikel" onMore={()=>go('articles')}>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:20 }}>
+                  {CATS.slice(0,6).map(c=>(
+                    <div key={c.name} className="bento-card bento-hover" onClick={()=>go('articles')} style={{ cursor:'pointer', background:'#fff' }}>
+                      <div style={{ width:56, height:56, borderRadius:16, background:c.bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:28, marginBottom:16 }}>{c.icon}</div>
+                      <div style={{ fontWeight:800, fontSize:18, marginBottom:6, color:P }}>{c.name}</div>
+                      <div style={{ fontSize:13, color:MUT, lineHeight:1.5, marginBottom:12 }}>{c.desc}</div>
+                      <div style={{ fontSize:12, color:ACC, fontWeight:800 }}>{c.count} Artikel</div>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            </div>
+
+            <div>
+              <Section title="Program Literasi">
+                <div style={{display:'flex', flexDirection:'column', gap:16}}>
+                  {PROGS.map(pr=>(
+                    <div key={pr.name} className="bento-card bento-hover" style={{ padding:'20px', display:'flex', alignItems:'center', gap:16, cursor:'pointer' }}>
+                      <div style={{ width:48, height:48, borderRadius:14, background:pr.color+'15', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, flexShrink:0 }}>{pr.icon}</div>
+                      <div>
+                        <div style={{ fontWeight:800, fontSize:15, marginBottom:4, color:P }}>{pr.name}</div>
+                        <div style={{ fontSize:12, color:MUT, lineHeight:1.4 }}>{pr.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function ArtCard({ a, go, setArt, isRead }) {
+      return (
+        <div className="bento-card bento-hover" onClick={()=>{ setArt(a); go('article'); }} style={{ cursor:'pointer', padding:0, display:'flex', flexDirection:'column' }}>
+          <div style={{ background:a.id%2===0?'#E2E8F0':'#E0F2FE', height:180, display:'flex', alignItems:'center', justifyContent:'center', position:'relative', borderRadius:'24px 24px 0 0' }}>
+            <span style={{ fontSize:72 }}>{catIcon(a.cat)}</span>
+            {isRead && <div style={{ position:'absolute', top:16, left:16, background:'#10B981', color:'#fff', fontSize:11, padding:'6px 12px', borderRadius:12, fontWeight:800 }}>✓ Dibaca</div>}
+          </div>
+          <div style={{ padding:24, flex:1, display:'flex', flexDirection:'column' }}>
+            <div style={{ color:ACC, fontSize:12, fontWeight:800, textTransform:'uppercase', letterSpacing:'1px', marginBottom:12 }}>{a.cat}</div>
+            <h3 style={{ fontSize:18, fontWeight:800, margin:'0 0 12px', lineHeight:1.4, color:P }}>{a.title}</h3>
+            <p style={{ fontSize:14, color:MUT, lineHeight:1.6, margin:'0 0 20px', flex:1 }}>{a.exc}</p>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', paddingTop:16, borderTop:'1px solid #F1F5F9' }}>
+              <span style={{ fontSize:12, color:MUT, fontWeight:500 }}>{a.author} · {a.rt} mnt</span>
+              <span style={{ background:ACC+'20', color:'#D97706', fontSize:12, fontWeight:800, padding:'6px 12px', borderRadius:12 }}>+5 Poin</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function ArticlesPage({ go, setArt, readSet }) {
+      const [filter, setFilter] = useState('Semua');
+      const allCats = ['Semua', ...new Set(ARTS.map(a=>a.cat))];
+      const shown = filter==='Semua' ? ARTS : ARTS.filter(a=>a.cat===filter);
+      return (
+        <div style={{ minHeight:'100vh', padding:'48px' }}>
+          <div style={{ maxWidth:1280, margin:'0 auto' }}>
+            <h1 style={{ fontSize:40, fontWeight:900, marginBottom:12, color:P, letterSpacing:'-1px' }}>Jelajahi Artikel</h1>
+            <p style={{ color:MUT, marginBottom:32, fontSize:16 }}>Temukan wawasan baru dan kumpulkan poin membaca.</p>
+            
+            <div style={{ display:'flex', gap:12, marginBottom:40, flexWrap:'wrap' }}>
+              {allCats.map(c=>(
+                <button key={c} onClick={()=>setFilter(c)} style={{
+                  background: filter===c?P:'#fff', color: filter===c?'#fff':MUT,
+                  border: filter===c?'none':'1px solid #E2E8F0', padding:'10px 24px',
+                  borderRadius:99, cursor:'pointer', fontSize:14, fontWeight:700, transition:'all 0.2s',
+                  boxShadow: filter===c?'0 8px 20px rgba(27,67,50,0.2)':'none' }}>{c}</button>
+              ))}
+            </div>
+            
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:32 }}>
+              {shown.map(a=><ArtCard key={a.id} a={a} go={go} setArt={setArt} isRead={readSet.has(a.id)} />)}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function ArticlePage({ art, readSet, setReadSet, earn, go }) {
+      const [timer, setTimer] = useState(0);
+      const [earned, setEarned] = useState(readSet.has(art.id));
+      const TARGET = 10; // Cepat untuk demo
+
+      useEffect(() => {
+        setTimer(0); setEarned(readSet.has(art.id));
+      }, [art.id]);
+
+      useEffect(() => {
+        if (earned) return;
+        const interval = setInterval(() => {
+          setTimer(t => {
+            if (t >= TARGET - 1) {
+              clearInterval(interval);
+              setReadSet(prev => new Set([...prev, art.id]));
+              setEarned(true);
+              earn(5, `Selesai membaca: ${art.title}`);
+              return TARGET;
+            }
+            return t + 1;
+          });
+        }, 1000);
+        return () => clearInterval(interval);
+      }, [earned, art.id]);
+
+      const pct = Math.min((timer / TARGET) * 100, 100);
+
+      return (
+        <div style={{ background:'#fff', minHeight:'100vh', paddingBottom:100 }}>
+          <div style={{ position:'sticky', top:80, zIndex:100, background:'rgba(255,255,255,0.9)', backdropFilter:'blur(10px)', borderBottom:'1px solid #F1F5F9' }}>
+            <div style={{ height:4, background:'#F1F5F9' }}>
+              <div style={{ height:'100%', width:`${pct}%`, transition:'width 1s linear', background: earned ? '#10B981' : ACC }} />
+            </div>
+            <div style={{ padding:'12px 48px', display:'flex', justifyContent:'center', fontSize:13, fontWeight:700, color: earned ? '#10B981' : MUT }}>
+              {earned ? '✨ Poin berhasil ditambahkan!' : `📖 Terus membaca... ${TARGET - timer} detik lagi untuk reward`}
+            </div>
+          </div>
+
+          <div style={{ maxWidth:800, margin:'0 auto', padding:'48px 24px' }}>
+            <button onClick={()=>go('articles')} style={{ background:'none', border:'none', color:MUT, fontWeight:700, cursor:'pointer', marginBottom:32, display:'flex', alignItems:'center', gap:8 }}>
+              ← Kembali
+            </button>
+
+            <div style={{ color:ACC, fontSize:14, fontWeight:800, textTransform:'uppercase', letterSpacing:'1px', marginBottom:16 }}>{art.cat}</div>
+            <h1 style={{ fontSize:42, fontWeight:900, margin:'0 0 24px', lineHeight:1.2, color:P, letterSpacing:'-1px' }}>{art.title}</h1>
+
+            <div style={{ display:'flex', gap:24, fontSize:14, color:MUT, marginBottom:40, paddingBottom:32, borderBottom:'1px solid #F1F5F9' }}>
+              <span style={{fontWeight:700, color:P}}>✍️ {art.author}</span>
+              <span>📅 {art.date}</span>
+              <span>⏱️ {art.rt} menit</span>
+            </div>
+
+            <div style={{ lineHeight:1.9, fontSize:18, color:'#334155' }}>
+              {art.body.split('\n\n').map((p,i)=><p key={i} style={{ marginBottom:28 }}>{p}</p>)}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Root App Component
+    export default function ReadUp() {
+      const [pg, setPg] = useState('home');
+      const [pts, setPts] = useState(1250);
+      const [selArt, setSelArt] = useState(null);
+      const [readSet, setReadSet] = useState(new Set());
+      const [notif, setNotif] = useState(null);
+
+      const notify = (msg, type='success') => {
+        setNotif({msg, type});
+        setTimeout(()=>setNotif(null), 4000);
+      };
+
+      const earn = (n, reason) => {
+        setPts(p=>p+n);
+        notify(`+${n} Poin! ${reason}`);
+      };
+
+      const go = id => {
+        window.scrollTo({top:0,behavior:'smooth'});
+        setPg(id);
+      };
+
+      return (
+        <div>
+          {notif && <Notif n={notif} />}
+          <NavBar pg={pg} go={go} pts={pts} />
+          {pg==='home' && <HomePage go={go} setArt={setSelArt} pts={pts} />}
+          {pg==='articles' && <ArticlesPage go={go} setArt={setSelArt} readSet={readSet} />}
+          {pg==='article' && selArt && <ArticlePage art={selArt} readSet={readSet} setReadSet={setReadSet} earn={earn} go={go} />}
+          {pg==='programs' && <div style={{padding:'100px', textAlign:'center', fontSize:24, fontWeight:800, color:MUT}}>Program Literasi - Coming Soon 🚀</div>}
+          {pg==='rewards' && <div style={{padding:'100px', textAlign:'center', fontSize:24, fontWeight:800, color:MUT}}>Reward Store - Coming Soon 🎁</div>}
+          {pg==='dashboard' && <div style={{padding:'100px', textAlign:'center', fontSize:24, fontWeight:800, color:MUT}}>User Dashboard - Coming Soon 👤</div>}
+        </div>
+      );
+    }
+  </script>
+</body>
+</html>
